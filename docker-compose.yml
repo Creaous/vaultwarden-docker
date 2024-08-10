@@ -19,6 +19,7 @@ services:
       - .env.vw
     networks:
       - vw
+      - db
   db:
     image: postgres:16.4-alpine
     restart: always
@@ -33,7 +34,7 @@ services:
     env_file:
       - .env.db
     networks:
-      - vw
+      - db
       - backup
   backup:
     image: prodrigestivill/postgres-backup-local
@@ -53,7 +54,22 @@ services:
       - .env.backup
     networks:
       - backup
+  cloudflared:
+    image: cloudflare/cloudflared:2024.8.2
+    restart: unless-stopped
+    read_only: true
+    volumes:
+      - ./cloudflared:/root/.cloudflared/
+    command: ["tunnel", "run", "${TUNNEL_ID}"]
+    user: root
+    depends_on:
+      - vw
+    env_file:
+      - .env.cloudflared
+    networks:
+      - vw
 
 networks:
   vw:
+  db:
   backup:
