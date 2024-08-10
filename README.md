@@ -20,9 +20,10 @@ After rebooting, switch to the vaultwarden user by running `su - vaultwarden`.
 
 Edit the following files to configure your setup:
 
-- .env.vw
-- .env.db
-- .env.backup
+- .vw.env
+- .db.env
+- .backup.env
+- .cloudflared.env
 
 Once ready, you can run `docker compose up -d` to start the containers.
 
