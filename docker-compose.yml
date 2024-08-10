@@ -1,0 +1,59 @@
+services:
+  vw:
+    image: vaultwarden/server:latest
+    restart: always
+    healthcheck:
+      test: curl --fail http://localhost:80/alive || exit 1
+      interval: 40s
+      timeout: 30s
+      retries: 3
+      start_period: 60s
+    volumes:
+      - ./vw-data:/data
+    depends_on:
+      - db
+    ports:
+      - 80:80
+    env_file:
+      - .env.db
+      - .env.vw
+    networks:
+      - vw
+  db:
+    image: postgres:16.4-alpine
+    restart: always
+    healthcheck:
+      test: pg_isready -U vaultwarden -d vaultwarden
+      interval: 40s
+      timeout: 30s
+      retries: 3
+      start_period: 60s
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+    env_file:
+      - .env.db
+    networks:
+      - vw
+      - backup
+  backup:
+    image: prodrigestivill/postgres-backup-local
+    restart: always
+    healthcheck:
+      test: curl --fail http://localhost:8080 || exit 1
+      interval: 40s
+      timeout: 30s
+      retries: 3
+      start_period: 60s
+    volumes:
+      - ./backup-data:/backups
+    depends_on:
+      - db
+    env_file:
+      - .env.db
+      - .env.backup
+    networks:
+      - backup
+
+networks:
+  vw:
+  backup:
