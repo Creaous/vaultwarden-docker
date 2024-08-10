@@ -57,11 +57,8 @@ services:
   cloudflared:
     image: cloudflare/cloudflared:2024.8.2
     restart: unless-stopped
-    read_only: true
-    volumes:
-      - ./cloudflared:/root/.cloudflared/
-    command: ["tunnel", "run", "${TUNNEL_ID}"]
     user: root
+    command: tunnel run
     depends_on:
       - vw
     env_file:
